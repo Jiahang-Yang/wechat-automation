@@ -32,7 +32,7 @@
 ├── .gitignore
 ├── 文章草稿/            # 源稿 .md + 生成 .wechat.html（父亲主要工作区）
 ├── 素材/               # 配图（父亲放图）
-├── 技能/               # 可移植技能源（写作/排版/发布 各含 SKILL.md + install_skills.sh）
+├── 技能/               # 可移植技能源（写作/封面/排版/发布/白名单 各含 SKILL.md + install_skills.sh）
 ├── 工具/
 │   ├── api/                  # 【API 路径】官方接口脚本 + 凭证（自洽闭环）
 │   │   ├── wechat_api.py        # 共享模块：token / 封面上传 / draft 调用
@@ -142,8 +142,10 @@ cp 工具/api/.env.example 工具/api/.env
 ```
 技能/
 ├── 写作/SKILL.md   # 写公众号文章草稿（财税健康内容方向 + 父亲口吻基线）
+├── 封面/SKILL.md   # 生成公众号封面（ImageGen，头条 2.35:1 / 小图 1:1）
 ├── 排版/SKILL.md   # Markdown → 微信排版 HTML（md2wechat.py）
-└── 发布/SKILL.md   # 推草稿箱（API 优先 / 浏览器备用）
+├── 发布/SKILL.md   # 推草稿箱（API 优先 / 浏览器备用）
+└── 白名单/SKILL.md # 40164 IP 白名单处理（查 IP + 开发者平台链接）
 ```
 同目录还带一个 `install_skills.sh`（一键装到用户级技能目录）。
 
