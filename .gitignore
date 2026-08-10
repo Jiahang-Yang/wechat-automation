@@ -1,0 +1,31 @@
+# 本机 Python 环境（机器相关，不随项目移植；新机器跑 setup.sh 重建）
+venv/
+
+# 微信登录态缓存（含个人会话，机器相关，勿分享/勿提交）
+工具/browser/wechat_login.json
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 微信 API 凭证（含 AppSecret，敏感，勿提交；用 .env.example 作模板）
+工具/api/.env
+
+# access_token 缓存（机器相关，勿提交）
+工具/api/access_token_cache.json
+
+# 草稿箱拉取结果快照（机器相关，勿提交）
+工具/草稿列表.json
+
+# 文章列表账本（账号相关，勿提交；新机器首次运行自动重建）
+工具/文章列表.json
+
+# 封面 media_id 缓存（账号相关，勿提交；换号后自动重新上传）
+工具/api/封面缓存.json
+
+# 临时调试/运行文件（勿提交）
+工具/_debug_*.py
+工具/_live*.log
+
+# 历史归档（含旧账号资料，勿交付）
+_archive/
