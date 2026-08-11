@@ -29,6 +29,15 @@ STYLE = {
     'a':    'color:#576b95;text-decoration:none;',
 }
 
+# 表格样式（内联，微信编辑器可保留）
+TABLE_STYLE = "width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;line-height:1.7;word-break:break-word;"
+TH_STYLE = "border:1px solid #ddd;padding:10px 12px;background:#f5f7fa;color:#1a1a1a;font-weight:bold;text-align:left;word-break:break-word;"
+TD_STYLE = "border:1px solid #ddd;padding:9px 12px;color:#2b2b2b;word-break:break-word;"
+
+# 列表样式：必须显式 list-style-type + list-style-position:inside，否则微信编辑器默认 list-style:none 会吞掉序号/圆点
+OL_STYLE = "list-style-type:decimal;list-style-position:inside;padding-left:0;margin:12px 0;"
+UL_STYLE = "list-style-type:disc;list-style-position:inside;padding-left:0;margin:12px 0;"
+
 def inline(text):
     text = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)',
                  r'<img src="\2" alt="\1" style="' + STYLE['img'] + '"/>', text)
@@ -39,6 +48,30 @@ def inline(text):
     text = re.sub(r'`(.+?)`',
                   r'<code style="background:#f2f2f2;padding:2px 4px;border-radius:3px;font-size:13px;">\1</code>', text)
     return text
+
+def table_cells(line):
+    """拆分一行表格，去掉首尾竖线，返回单元格列表"""
+    line = line.strip()
+    if line.startswith('|'):
+        line = line[1:]
+    if line.endswith('|'):
+        line = line[:-1]
+    return [c.strip() for c in line.split('|')]
+
+def is_table_sep(cells):
+    """判断一行是否为表格分隔行（如 |---|---|）"""
+    return cells and all(re.fullmatch(r':?-{2,}:?', c) for c in cells)
+
+def render_table(rows):
+    """将 Markdown 表格行渲染为微信可用的内联样式 <table>"""
+    header = table_cells(rows[0])
+    body = [table_cells(r) for r in rows[1:] if not is_table_sep(table_cells(r))]
+    thead = '<tr>%s</tr>' % ''.join(
+        '<th style="%s">%s</th>' % (TH_STYLE, inline(c)) for c in header)
+    tbody = ''.join(
+        '<tr>%s</tr>' % ''.join('<td style="%s">%s</td>' % (TD_STYLE, inline(c)) for c in row)
+        for row in body)
+    return '<table style="%s"><thead>%s</thead><tbody>%s</tbody></table>' % (TABLE_STYLE, thead, tbody)
 
 def convert(md):
     lines = md.split('\n')
@@ -84,20 +117,26 @@ def convert(md):
                 i += 1
             out.append('<blockquote style="%s">%s</blockquote>' % (STYLE['quote'], inline(' '.join(q))))
             continue
-        # 无序列表
+        # 无序列表：渲染为手动圆点段落（公众号编辑器会忽略 ul/ol 的 CSS 序号，必须手动编号）
         m = re.match(r'^[-*]\s+(.*)$', line)
         if m:
-            flush_para()
-            if list_type[0] != 'ul':
-                close_list(); out.append('<ul style="padding-left:22px;margin:12px 0;">'); list_type[0] = 'ul'
-            out.append('<li style="%s">%s</li>' % (STYLE['li'], inline(m.group(1)))); i += 1; continue
-        # 有序列表
-        m = re.match(r'^\d+\.\s+(.*)$', line)
+            flush_para(); close_list()
+            out.append('<p style="%s">• %s</p>' % (STYLE['p'], inline(m.group(1)))); i += 1; continue
+        # 有序列表：渲染为手动编号段落（保留 md 原有数字，微信不丢序号）
+        m = re.match(r'^(\d+)\.\s+(.*)$', line)
         if m:
-            flush_para()
-            if list_type[0] != 'ol':
-                close_list(); out.append('<ol style="padding-left:22px;margin:12px 0;">'); list_type[0] = 'ol'
-            out.append('<li style="%s">%s</li>' % (STYLE['li'], inline(m.group(1)))); i += 1; continue
+            flush_para(); close_list()
+            out.append('<p style="%s">%s. %s</p>' % (STYLE['p'], m.group(1), inline(m.group(2)))); i += 1; continue
+        # 表格（| 分隔的 Markdown 表格）：以 | 开头，且下一行是分隔行
+        if line.strip().startswith('|') and i + 1 < len(lines) and \
+           is_table_sep(table_cells(lines[i+1])):
+            flush_para(); close_list()
+            rows = []
+            while i < len(lines) and lines[i].strip().startswith('|'):
+                rows.append(lines[i])
+                i += 1
+            out.append(render_table(rows))
+            continue
         # 空行
         if line.strip() == '':
             flush_para(); close_list(); i += 1; continue
