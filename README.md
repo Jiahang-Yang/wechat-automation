@@ -30,8 +30,8 @@
 ├── README.md            # 本文件（智能体向技术说明）
 ├── 用户指南.md           # 给使用者（父亲）的通俗操作手册
 ├── .gitignore
-├── 文章草稿/            # 源稿 .md + 生成 .wechat.html（父亲主要工作区）
-├── 素材/               # 配图（父亲放图）
+├── 文章草稿/            # 源稿 .md + 生成 .wechat.html（父亲主要工作区；gitignore，不入库）
+├── 素材/               # 配图（父亲放图；gitignore，不入库）
 ├── 技能/               # 可移植技能源（写作/封面/排版/发布/白名单 各含 SKILL.md + install_skills.sh）
 ├── 工具/
 │   ├── api/                  # 【API 路径】官方接口脚本 + 凭证（自洽闭环）
@@ -39,7 +39,8 @@
 │   │   ├── api_get_drafts.py    # 【API】获取草稿箱列表（官方接口，纯 requests）
 │   │   ├── api_push_draft.py    # 【API】推送文章到草稿箱（官方接口，纯 requests）
 │   │   ├── .env                 # API 凭证（gitignore，勿提交）
-│   │   └── .env.example         # 凭证模板（复制为 .env 填 APPID/APPSECRET）
+│   │   ├── .env.example         # 凭证模板（复制为 .env 填 APPID/APPSECRET）
+│   │   └── get_public_ip.py     # 获取当前公网 IP（40164 白名单配置用，供「白名单」技能调用）
 │   ├── browser/              # 【浏览器备用路径】API 不可用时兜底（自洽闭环）
 │   │   ├── browser_push.py      # HTML → 推草稿箱（Playwright 浏览器模拟）
 │   │   ├── publish.sh           # browser_push.py 一键包装（调 venv python）
@@ -47,9 +48,8 @@
 │   ├── md2wechat.py          # Markdown → 公众号排版 HTML（独立，无同目录依赖）
 │   ├── setup.sh              # 新机器重建 venv + 依赖 + Chromium
 │   ├── requirements.txt      # 依赖锁：playwright==1.62.0、requests>=2.31.0
-│   └── 草稿列表.json          # 草稿箱列表本地镜像（API/浏览器共用，gitignore，仅供查阅）
+│   │   （运行后自动生成：草稿列表.json / 文章列表.json，gitignore，仅供查阅）
 ├── venv/               # 本机 Python 环境（gitignore，setup.sh 可重建）
-└── _archive/           # 历史资料（已放弃的企业订阅号等，不用管）
 ```
 
 > **设计原则**：根目录只放「父亲能看懂的」（`文章草稿/`、`素材/`）、「最基本说明」（`README.md` 给智能体、`用户指南.md` 给使用者）与「技能规则」（`技能/`，给智能体自动加载）；一切脚本 / 登录态 / 依赖等"工具调用"相关都收在 `工具/`（并按 api / browser 两组分目录）。
@@ -58,6 +58,8 @@
 
 ### 路径 A：官方 API（推荐，免浏览器 / 免扫码）
 走微信官方接口（`cgi-bin/draft/*`），只要 `工具/api/.env` 里有 APPID/APPSECRET（IP 白名单留空即可任意 IP 调用）。不依赖 Playwright / Chromium / 扫码登录。
+
+> 若报 **`40164 invalid ip`**（当前 IP 不在白名单）：按「白名单」技能处理——`get_public_ip.py` 查当前 IP → 给用户开发者平台链接（自动带 AppID）添加白名单（约 1 分钟生效）；修复前走浏览器备用路径，不阻塞本次推送。
 
 ```bash
 # 0. 复制模板并填凭证（一次性）
