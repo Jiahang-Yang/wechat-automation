@@ -113,7 +113,7 @@ cp 工具/api/.env.example 工具/api/.env
      `python -m venv venv` → `venv\Scripts\pip install -r 工具\requirements.txt` → `venv\Scripts\python -m playwright install chromium`
   4. 首次 `./工具/browser/publish.sh xxx` 弹窗微信扫码，之后登录态缓存在 `工具/browser/wechat_login.json`，cookie 过期前免扫。
 - **版本控制**：`.gitignore` 排除 `venv/`、`工具/api/.env`、`工具/api/access_token_cache.json`、`工具/browser/wechat_login.json`、`工具/草稿列表.json`、`__pycache__`；`git clone` 后跑 `工具/setup.sh` 复原。
-- ⚠️ **Python 路径坑（重要）**：Git Bash 给 Python 传路径必须用 `D:/JiaHa/...`（盘符写法），**不能**用 `/d/JiaHa/...`（会被误解成 `C:\d\JiaHa\...`）。
+- ⚠️ **Python 路径坑（重要）**：Git Bash 给 Python 传路径必须用盘符写法（如 `D:/...`），**不能**用 `/d/...`（会被误解成 `C:\d\...`）。
 
 ## 六、已知坑
 
