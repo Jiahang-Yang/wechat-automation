@@ -161,4 +161,4 @@ cp 工具/api/.env.example 工具/api/.env
 3. 也可直接跑 `bash 技能/install_skills.sh`（默认装到用户级 `~/.workbuddy/skills/`）。
 4. 装完后，**智能体会按每个 `SKILL.md` 的 `description` 自动判断相关性并加载**——相关任务不用你提醒，它会自己调用对应技能。这与 WorkBuddy 自身机制一致：工作区/用户级技能目录里的技能会被自动发现、按相关度自动使用，无需在界面里手动「加号」选择。
 
-> 根目录不再有 `SKILL.md`；旧版已归档到 `_archive/SKILL_旧版.md`。
+> 根目录不再有 `SKILL.md`；所有技能统一收在 `技能/` 下（旧版单文件技能已废弃）。
